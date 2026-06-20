@@ -1,16 +1,3 @@
-# =========================================================
-# iGutHealth - Aplikasi Skrining Tingkat Depresi (MDD)
-# Peran: APLIKASI | Lomba Esai Statistika Nasional
-# Nama: ______________________   NIM: ______________
-# Program Studi Statistika, Universitas Diponegoro
-# =========================================================
-# Catatan defensif (untuk presentasi):
-# - Antarmuka memakai Streamlit: framework Python untuk membuat aplikasi web
-#   data. Cocok dengan alur kami (unggah data -> model di backend -> dashboard).
-# - Aplikasi TIDAK melatih model. Aplikasi hanya MEMUAT file model dari backend
-#   (model_iguthealth.joblib), lalu memakainya untuk memprediksi data yang
-#   diunggah user. Jadi user Rumah Sakit hanya mengunggah DATA, bukan model.
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -19,17 +6,17 @@ import os
 import json
 import plotly.express as px
 
-# ---------- Konfigurasi halaman ----------
-st.set_page_config(page_title="iGutHealth", page_icon="🧠", layout="wide")
+# Konfigurasi halaman
+st.set_page_config(page_title="iGutHealth", page_icon="🏥", layout="wide")
 
 # Sedikit penyesuaian gaya supaya tampilan lebih bersih (tren 2026)
 st.markdown(
     """
     <style>
-      .stApp { background-color: #F4F7F6; }
-      section[data-testid="stSidebar"] { background-color: #0F766E; }
+      .stApp { background-color: #FFFFFF; }
+      section[data-testid="stSidebar"] { background-color: #FFBFBF; }
       section[data-testid="stSidebar"] * { color: #FFFFFF; }
-      div[data-testid="stMetricValue"] { color: #0F766E; }
+      div[data-testid="stMetricValue"] { color: #FFBFBF; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -42,21 +29,20 @@ FITUR = ["Diversitas_Mikroba", "Butirat", "Propionat", "Asetat",
          "Corynebacterium", "Staphylococcus", "Moraxella",
          "Jam_Tidur", "Skor_Stres", "Usia"]
 KELAS = ["Rendah", "Sedang", "Tinggi"]
-WARNA_KELAS = {"Rendah": "#34D399", "Sedang": "#FBBF24", "Tinggi": "#F87171"}
+WARNA_KELAS = {"Rendah": "#FFDE4D", "Sedang": "#FFB22C", "Tinggi": "#FF4C4C"}
 
 TEKS_KRISIS = (
-    "**Layanan dukungan psikologis (gratis, 24 jam):**\n\n"
-    "- Hotline **119 ekstensi 8** (SEJIWA / Healing119, Kemenkes)\n"
-    "- Situs konselor daring: **www.healing119.id**\n"
-    "- Halo Kemenkes: **1500-567**\n\n"
-    "Bila kondisi gawat darurat, hubungi **119** atau ke IGD/Puskesmas terdekat."
+    "**Hotline Kesehatan Mental Bunuh Diri**\n"
+    "**Kementerian Kesehatan**\n\n"
+    "**119 ext. 8** jika merasa ingin mengakhiri hidup\n"
+    "WhatsApp jika butuh cerita dengan seseorang\n"
 )
-DISCLAIMER = ("⚠️ Hasil ini adalah **prediksi model skrining, bukan diagnosis**. "
-              "Wajib dikonfirmasi oleh psikolog/psikiater/dokter/pihak rumah sakit.")
+DISCLAIMER = ("⚠️ iGutHealth merupakan aplikasi deteksi, bukan diagnosis."
+              "Anda wajib konseling kembali dengan pihak rumah sakit.")
 
-# Interpretasi singkat tiap tingkat (ditampilkan ke pasien)
+# Interpretasi tiap tingkat (ditampilkan ke pasien)
 INTERPRETASI = {
-    "Rendah": "Indikasi gejala depresi tergolong RINGAN/minimal. Tetap jaga pola "
+    "Rendah": "Indikasi gejala depresi tergolong RINGAN. Tetap jaga gaya "
               "hidup sehat sebagai pencegahan.",
     "Sedang": "Indikasi gejala depresi tergolong SEDANG. Perlu perhatian, "
               "pemantauan, dan sebaiknya berkonsultasi dengan tenaga profesional.",
@@ -85,7 +71,7 @@ def muat_hasil():
         return {}
 
 
-# ---------- Memuat / membangun model ----------
+# Memuat / membangun model 
 @st.cache_resource
 def muat_model():
     """Memuat file model dari backend. Jika file belum ada (atau gagal dibaca),
@@ -139,7 +125,7 @@ def bangun_model_sintetis():
 MODEL = muat_model()
 
 
-# ---------- Skenario solusi berdasarkan tingkat MDD ----------
+# Skenario solusi berdasarkan tingkat MDD
 def solusi_berdasarkan_tingkat(tingkat):
     """Mengembalikan (judul, daftar_rekomendasi, butuh_hotline).
     Aturan keputusan dibuat eksplisit agar transparan dan bisa diaudit."""
