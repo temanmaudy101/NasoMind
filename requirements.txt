@@ -1,0 +1,10 @@
+streamlit
+pandas
+numpy
+scikit-learn
+joblib
+plotly
+google-genai
+anthropic
+openai
+Authlib>=1.3.2
