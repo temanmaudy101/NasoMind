@@ -74,7 +74,7 @@ st.markdown(
           background-color: #8FCE77 !important;
           border-color: #6FB85A !important;
           color: #111111 !important;
-      [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * { color: #555555 !important; }
+      [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * {color: #555555 !important; }
       }
     </style>
     """,
@@ -358,18 +358,12 @@ def hal_tentang():
         st.write("**NasoMind** merupakan aplikasi deteksi dini depresi secara presisi berbasis data "
                  "mikrobioma dan metabolit menggunakan model *machine learning* "
                  "untuk transformasi kesehatan Indonesia.")
-    with st.container(border=True):
-        st.markdown("**Disusun oleh**")
-        st.markdown("SD2026020000365\n"
-                    "Statistics Essay Competition Satria Data 2026")
-        st.caption("Versi prototipe untuk lomba esai statistika nasional.")
 
 
 def hal_unggah():
     st.header("Unggah Data")
     with st.container(border=True):
-        st.write("Unggah file tipe CSV berisi data pasien dengan kolom berikut.")
-        with st.expander("Lihat %d nama kolom yang dapat diproses oleh model machine learning" % len(FITUR)):
+        with st.expander("Unggah file tipe CSV berisi data pasien dengan %d nama kolom berikut (nama kolom yang dapat diproses oleh model machine learning)." % len(FITUR)):
             st.write(", ".join(FITUR))
         berkas = st.file_uploader("Unggah data")
         if berkas is not None:
@@ -612,7 +606,7 @@ def hal_dashboard():
 
     if st.session_state.peran == "rumah_sakit":
         if st.session_state.df_hasil is None:
-            st.warning("Belum ada data. Silakan unggah data dulu di menu Unggah Data.")
+            st.warning("Belum ada data yang diunggah.")
             return
         dashboard_rs(st.session_state.df_hasil)
     else:  # pasien
