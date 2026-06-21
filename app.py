@@ -439,19 +439,17 @@ def kartu_metabolit():
     pasangan = sorted(zip(FITUR, imp), key=lambda x: x[1], reverse=True)[:8]
     interp = interpretasi_metabolit(tuple(n for n, _ in pasangan))
     with st.container(border=True):
-        st.subheader("Interpretasi Metabolit (AI)")
+        st.subheader("Interpretasi Metabolit")
         if interp is None:
-            st.caption("Aktifkan GEMINI_API_KEY di Secrets untuk interpretasi AI.")
+            st.caption("Fitur ini belum terkonfigurasi.")
         for nama, nilai in pasangan:
-            with st.expander("%s — kontribusi %.1f%%" % (nama, nilai / total * 100)):
+            with st.expander("🔽 %s — kontribusi %.1f%%" % (nama, nilai / total * 100)):
                 if interp and nama in interp:
                     info = interp[nama]
-                    st.write("**Apa ini:** " + str(info.get("apa", "-")))
-                    st.write("**Kaitan dengan depresi:** " + str(info.get("hubungan", "-")))
+                    st.write("**Definisi:** " + str(info.get("apa", "-")))
+                    st.write("**Hubungan dengan depresi:** " + str(info.get("hubungan", "-")))
                 else:
-                    st.write("Interpretasi belum tersedia.")
-        st.caption("Kontribusi = feature importance model (pengaruh fitur pada model, "
-                   "bukan kadar pada pasien). Interpretasi AI bersifat edukatif.")
+                    st.write("Fitur ini belum terkonfigurasi.")
 
 
 def fitur_insightful(n=6):
