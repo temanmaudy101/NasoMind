@@ -363,7 +363,7 @@ def hal_tentang():
 def hal_unggah():
     st.header("Unggah Data")
     with st.container(border=True):
-        with st.expander("Unggah file tipe CSV berisi data pasien dengan %d nama kolom berikut (nama kolom yang dapat diproses oleh model machine learning)." % len(FITUR)):
+        with st.expander("🔽 Unggah file tipe CSV berisi data pasien dengan %d nama kolom berikut (nama kolom yang dapat diproses oleh model machine learning)." % len(FITUR)):
             st.write(", ".join(FITUR))
         berkas = st.file_uploader("Unggah data")
         if berkas is not None:
@@ -402,7 +402,7 @@ def hal_unggah():
 
                 pesan = "Data berhasil diunggah. Sebanyak %d kolom data akan diproses oleh model machine learning, sedangkan" % len(df)
                 if berlebih:
-                    pesan += " %d kolom lainnya akan diabaikan." % len(berlebih)
+                    pesan += " %d kolom lainnya diabaikan." % len(berlebih)
                 st.success(pesan + " Klik menu Dashboard untuk melihat hasil prediksi.")
             except Exception as e:
                 st.error("Data gagal diunggah: " + str(e))
