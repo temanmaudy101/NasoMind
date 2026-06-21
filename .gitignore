@@ -1,0 +1,4 @@
+.streamlit/secrets.toml
+hasil_pasien.json
+__pycache__/
+*.pyc
