@@ -268,27 +268,26 @@ def halaman_login():
         st.markdown("<h1 style='color:#3E7C2E;text-align:center'>NasoMind</h1>",
                     unsafe_allow_html=True)
         st.markdown("<p style='text-align:center;color:#6B7280'>Deteksi dini "
-                    "depresi berbasis metabolomik & mikrobiota nasal</p>",
+                    "depresi berbasis mikrobioma & metabolit nasal</p>",
                     unsafe_allow_html=True)
-        tab_rs, tab_pasien = st.tabs(["Rumah Sakit", "Pasien"])
+        tab_rs, tab_pasien = st.tabs(["Masuk sebagai Rumah Sakit", "Masuk sebagai Pasien"])
         with tab_rs:
-            st.text_input("Email instansi", key="rs_email", placeholder="rs@contoh.id")
+            st.text_input("Email", key="rs_email", placeholder="admin@rumahsakit.id")
             st.text_input("Kata sandi", type="password", key="rs_pass",
                           placeholder="Masukkan kata sandi")
             st.write("")
-            if st.button("Masuk sebagai Rumah Sakit", use_container_width=True):
+            if st.button("Masuk", use_container_width=True):
                 st.session_state.peran = "rumah_sakit"
                 st.rerun()
         with tab_pasien:
-            st.write("Masuk cukup dengan akun Google Anda, tanpa perlu mengingat "
-                     "email/kata sandi.")
+            st.write("Masuk melalui akun Google Anda.")
             if auth_dikonfigurasi():
                 st.button("Lanjutkan dengan Google", use_container_width=True,
                           on_click=st.login)
             else:
-                st.caption("Login Google aktif setelah dikonfigurasi di Secrets. "
-                           "Untuk uji coba, gunakan tombol di bawah.")
-                if st.button("Masuk (mode demo)", use_container_width=True):
+                st.caption("Fitur di atas masih dalam proses konfigurasi. "
+                           "Untuk prototipe, klik tombol di bawah.")
+                if st.button("Masuk", use_container_width=True):
                     st.session_state.peran = "pasien"
                     st.rerun()
 
