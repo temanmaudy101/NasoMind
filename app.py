@@ -74,6 +74,7 @@ st.markdown(
           background-color: #8FCE77 !important;
           border-color: #6FB85A !important;
           color: #111111 !important;
+      [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * { color: #555555 !important; }
       }
     </style>
     """,
@@ -100,8 +101,8 @@ TEKS_KRISIS = (
     "- Halo Kemenkes: **1500-567**\n\n"
     "Bila kondisi gawat darurat, hubungi **119** atau ke IGD/Puskesmas terdekat."
 )
-DISCLAIMER = ("⚠️ Hasil ini adalah **prediksi model skrining, bukan diagnosis**. "
-              "Wajib dikonfirmasi oleh psikolog/psikiater/dokter/pihak rumah sakit.")
+DISCLAIMER = ("⚠️ Hasil berikut merupakan **prediksi**, bukan diagnosis. "
+              "Wajib dikonfirmasi kembali oleh psikolog, psikiater, ataupun dokter.")
 
 # ---------- Pengaturan platform Chat & interpretasi GenAI ----------
 MODEL_GEMINI = "gemini-2.5-flash"
@@ -323,11 +324,11 @@ def halaman_login():
         st.markdown("<h1 style='color:#3E7C2E;text-align:center'>NasoMind</h1>",
                     unsafe_allow_html=True)
         st.markdown("<p style='text-align:center;color:#6B7280'>Deteksi dini "
-                    "depresi berbasis metabolomik & mikrobiota nasal</p>",
+                    "depresi berbasis mikrobiota & metabolit nasal</p>",
                     unsafe_allow_html=True)
         tab_rs, tab_pasien = st.tabs(["Rumah Sakit", "Pasien"])
         with tab_rs:
-            st.text_input("Email instansi", key="rs_email", placeholder="rs@contoh.id")
+            st.text_input("Email", key="rs_email", placeholder="admin@rumahsakit.id")
             st.text_input("Kata sandi", type="password", key="rs_pass",
                           placeholder="Masukkan kata sandi")
             st.write("")
@@ -354,32 +355,29 @@ def halaman_login():
 def hal_tentang():
     st.header("Tentang Aplikasi")
     with st.container(border=True):
-        st.write("**NasoMind** merupakan aplikasi deteksi depresi berbasis data "
-                 "metabolomik dan mikrobiota menggunakan model *machine learning* "
+        st.write("**NasoMind** merupakan aplikasi deteksi dini depresi secara presisi berbasis data "
+                 "mikrobioma dan metabolit menggunakan model *machine learning* "
                  "untuk transformasi kesehatan Indonesia.")
     with st.container(border=True):
-        st.markdown("**Tim penyusun:**")
-        st.markdown("- Bioteknologi : ______________________\n"
-                    "- Sains Data   : ______________________\n"
-                    "- Aplikasi     : ______________________")
+        st.markdown("**Disusun oleh**")
+        st.markdown("SD2026020000365\n"
+                    "Statistics Essay Competition Satria Data 2026"
         st.caption("Versi prototipe untuk lomba esai statistika nasional.")
 
 
 def hal_unggah():
     st.header("Unggah Data")
     with st.container(border=True):
-        st.write("Unggah file CSV berisi data pasien. **Kolom berlebih akan "
-                 "diabaikan** - aplikasi otomatis memilih variabel sesuai daftar "
-                 "fitur model.")
-        with st.expander("Lihat %d fitur yang dibutuhkan model" % len(FITUR)):
+        st.write("Unggah file tipe CSV berisi data pasien dengan kolom berikut.")
+        with st.expander("Lihat %d nama kolom yang dapat diproses oleh model machine learning" % len(FITUR)):
             st.write(", ".join(FITUR))
-        berkas = st.file_uploader("Pilih file")
+        berkas = st.file_uploader("Unggah data")
         if berkas is not None:
             try:
                 df = pd.read_csv(berkas)
                 kurang = [c for c in FITUR if c not in df.columns]
                 if kurang:
-                    st.error("Fitur wajib belum ada di file: " + ", ".join(kurang))
+                    st.error("Nama kolom belum ada di file: " + ", ".join(kurang))
                     return
                 berlebih = [c for c in df.columns
                             if c not in FITUR and c != "ID_Antrian"]
@@ -408,15 +406,12 @@ def hal_unggah():
                 st.session_state.df_hasil = df2
                 simpan_hasil(hasil)
 
-                pesan = "Berhasil. %d data diproses oleh model." % len(df)
+                pesan = "Data berhasil diunggah. Sebanyak %d kolom data akan diproses oleh model machine learning, sedangkan" % len(df)
                 if berlebih:
-                    pesan += " %d kolom berlebih diabaikan." % len(berlebih)
-                st.success(pesan + " Buka menu Dashboard.")
-                kol = (["ID_Antrian", "Hasil", "Probabilitas (%)"]
-                       if "ID_Antrian" in df2.columns else ["Hasil", "Probabilitas (%)"])
-                st.dataframe(df2[kol], use_container_width=True, height=240)
+                    pesan += " %d kolom lainnya akan diabaikan." % len(berlebih)
+                st.success(pesan + " Klik menu Dashboard untuk melihat hasil prediksi.")
             except Exception as e:
-                st.error("Gagal memproses: " + str(e))
+                st.error("Data gagal diunggah: " + str(e))
 
 
 def bar_metabolit():
@@ -483,9 +478,7 @@ def kartu_statistik(df):
     if not fitur:
         return
     with st.container(border=True):
-        st.subheader("Statistik Deskriptif Fitur Terpilih")
-        lengkap = (1 - df[fitur].isna().sum().sum() / (len(df) * len(fitur))) * 100
-        st.metric("Kelengkapan data fitur terpilih", "%.0f%%" % lengkap)
+        st.subheader("Statistik Deskriptif")
         desk = df[fitur].describe().T[["mean", "std", "min", "50%", "max"]]
         desk.columns = ["Rata-rata", "Std", "Min", "Median", "Maks"]
         st.dataframe(desk.round(3), use_container_width=True)
@@ -495,9 +488,8 @@ def kartu_statistik(df):
         fig.update_layout(height=340, xaxis_title="",
                           margin=dict(l=10, r=10, t=10, b=10))
         st.plotly_chart(fig, use_container_width=True)
-        st.caption("Statistik dihitung dari data yang diunggah. Fitur dipilih dari "
-                   "metabolit paling berpengaruh pada model. Penjelasan tiap "
-                   "metabolit ada di bagian Interpretasi Metabolit (AI).")
+        st.caption("Statistik dihitung berdasarkan data yang diunggah. Variabel dipilih dari "
+                   "metabolit paling berpengaruh pada model machine learning.")
 
 
 def kotak_kpi(label, nilai, ikon=""):
@@ -515,11 +507,11 @@ def dashboard_rs(df):
     # --- Baris KPI (boxes) ---
     k1, k2, k3, k4 = st.columns(4)
     with k1:
-        kotak_kpi("Total pasien", "%d" % total, "🧑‍🤝‍🧑")
+        kotak_kpi("Jumlah pasien", "%d" % total, "🧑‍🤝‍🧑")
     with k2:
-        kotak_kpi("Terindikasi", "%.0f%%" % pct_pos, "🔴")
+        kotak_kpi("Terindikasi depresi", "%.0f%%" % pct_pos, "🔴")
     with k3:
-        kotak_kpi("Tidak terindikasi", "%.0f%%" % (100 - pct_pos), "🟢")
+        kotak_kpi("Tidak terindikasi depresi", "%.0f%%" % (100 - pct_pos), "🟢")
     with k4:
         kotak_kpi("Rata-rata probabilitas", "%.0f%%" % rata_prob, "📊")
 
@@ -527,7 +519,7 @@ def dashboard_rs(df):
     v1, v2 = st.columns(2)
     with v1:
         with st.container(border=True):
-            st.subheader("Proporsi Hasil")
+            st.subheader("Proporsi Pasien")
             d = df["Hasil"].value_counts().reindex([LABEL_NEG, LABEL_POS]).fillna(0)
             fig = px.pie(values=d.values, names=d.index, hole=0.55,
                          color=d.index,
@@ -539,9 +531,11 @@ def dashboard_rs(df):
         with st.container(border=True):
             st.subheader("Sebaran Probabilitas Depresi")
             fig = px.histogram(df, x="Probabilitas (%)", nbins=10)
-            fig.update_traces(marker_color="#FFBFBF")
+            fig.update_traces(marker_color="#FFBFBF",
+                             marker_line_color="#E26B6B", marker_line_width=1.5)
             fig.update_layout(height=320, margin=dict(l=10, r=10, t=10, b=10),
-                              yaxis_title="Jumlah pasien")
+                              yaxis_title="Jumlah pasien", bargap=0.1)
+            fig.update_xaxes(range=[0, 100], dtick=10)   # mendatar: 0,10,20,...,100
             st.plotly_chart(fig, use_container_width=True)
 
     # --- Statistik deskriptif fitur ---
@@ -551,7 +545,7 @@ def dashboard_rs(df):
     fig_m = bar_metabolit()
     if fig_m is not None:
         with st.container(border=True):
-            st.subheader("Kontribusi Metabolit pada Model (%)")
+            st.subheader("Kontribusi Metabolit pada Model Machine Learning (%)")
             st.plotly_chart(fig_m, use_container_width=True)
 
     # --- Interpretasi AI ---
@@ -559,10 +553,10 @@ def dashboard_rs(df):
 
     # --- Tabel hasil (interaktif) ---
     with st.container(border=True):
-        st.subheader("Data Hasil")
-        pilih = st.multiselect("Saring berdasarkan hasil",
+        st.subheader("Tabel Hasil Prediksi")
+        pilih = st.multiselect("Filter berdasarkan hasil prediksi",
                                [LABEL_NEG, LABEL_POS], default=[LABEL_NEG, LABEL_POS])
-        kol = [c for c in ["ID_Antrian", "Hasil", "Probabilitas (%)"] if c in df.columns]
+        kol = [c for c in ["ID_Antrian", "Hasil Prediksi", "Probabilitas (%)"] if c in df.columns]
         st.dataframe(df[df["Hasil"].isin(pilih)][kol],
                      use_container_width=True, hide_index=True, height=300)
 
@@ -718,12 +712,12 @@ if st.session_state.peran is None:
 
 st.sidebar.title("NasoMind")
 if st.session_state.peran == "rumah_sakit":
-    st.sidebar.caption("Masuk sebagai: Rumah Sakit")
+    st.sidebar.caption("Masuk sebagai Rumah Sakit")
     menu = {"Tentang Aplikasi": hal_tentang, "Unggah Data": hal_unggah,
             "Dashboard": hal_dashboard}
 else:
     nama = st.session_state.get("nama_pasien")
-    st.sidebar.caption("Masuk sebagai: Pasien" + (" (%s)" % nama if nama else ""))
+    st.sidebar.caption("Masuk sebagai Pasien" + (" (%s)" % nama if nama else ""))
     menu = {"Tentang Aplikasi": hal_tentang, "Dashboard": hal_dashboard,
             "Riwayat Konsultasi": hal_riwayat, "Artikel Edukasi": hal_artikel,
             "Chat AI": hal_chat, "Call Center": hal_callcenter}
