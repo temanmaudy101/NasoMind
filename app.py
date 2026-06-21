@@ -361,7 +361,7 @@ def hal_tentang():
     with st.container(border=True):
         st.markdown("**Disusun oleh**")
         st.markdown("SD2026020000365\n"
-                    "Statistics Essay Competition Satria Data 2026"
+                    "Statistics Essay Competition Satria Data 2026")
         st.caption("Versi prototipe untuk lomba esai statistika nasional.")
 
 
