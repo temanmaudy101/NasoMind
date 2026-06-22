@@ -41,7 +41,7 @@ st.markdown(
       /* Nilai metric tetap hijau */
       div[data-testid="stMetricValue"] { color: #3E7C2E !important; }
 
-      /* Kotak input: latar putih + teks gelap, apa pun mode browser */
+      /* Kotak input: latar putih + teks gelap */
       .stTextInput div[data-baseweb="base-input"],
       .stTextInput div[data-baseweb="input"],
       .stNumberInput div[data-baseweb="input"],
@@ -57,8 +57,7 @@ st.markdown(
           color: #8A8A8A !important; -webkit-text-fill-color: #8A8A8A !important;
       }
 
-      /* Tombol: warna tetap (hijau branding + teks gelap) agar selalu terlihat,
-         tidak bergantung pada hover */
+      /* Tombol: warna tetap agar selalu terlihat */
       .stButton > button, .stDownloadButton > button,
       [data-testid="stFormSubmitButton"] > button,
       [data-testid="stBaseButton-secondary"], [data-testid="stBaseButton-primary"] {
@@ -74,8 +73,12 @@ st.markdown(
           background-color: #8FCE77 !important;
           border-color: #6FB85A !important;
           color: #111111 !important;
-      [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * {color: #555555 !important; }
       }
+
+      /* Caption agar terbaca */
+      [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * { color: #555555 !important; }
+      .stCaption, .stCaption * { color: #555555 !important; }
+      small { color: #555555 !important; }
     </style>
     """,
     unsafe_allow_html=True,
