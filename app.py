@@ -343,7 +343,7 @@ def halaman_login():
                           on_click=st.login)
             else:
                 st.caption("Fitur di atas belum dikonfigurasi. "
-                           "Untuk prototipe, klik tombol di bawah.")
+                           "Untuk prototipe, klik tombol di bawah ini.")
                 if st.button("Masuk", use_container_width=True):
                     st.session_state.peran = "pasien"
                     st.rerun()
@@ -669,7 +669,7 @@ def hal_chat():
     st.header("Chat AI")
     st.caption("Tempat bercerita yang aman dan nyaman untuk membantumu mendengar keluh-kesahmu. Chat AI ini bukan pengganti tenaga profesional.")
     if ada_kunci("GEMINI_API_KEY"):
-        st.caption("🟢 Kamu tersambung dengan ke Google Gemini di Chat AI ini.")
+        st.caption("🟢 Kamu tersambung dengan Google Gemini.")
     elif ada_kunci("ANTHROPIC_API_KEY"):
         st.caption("🟢 Terhubung ke Claude (Anthropic).")
     elif ada_kunci("OPENAI_API_KEY"):
@@ -687,9 +687,8 @@ def hal_chat():
 
 
 def hal_callcenter():
-    st.header("Hotline")
+    st.header("Kamu tidak sendiri.")
     with st.container(border=True):
-        st.subheader("Kamu tidak sendiri.")
         st.markdown(TEKS_KRISIS)
 
 
