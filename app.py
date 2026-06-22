@@ -98,11 +98,9 @@ WARNA_HASIL = {
 }
 
 TEKS_KRISIS = (
-    "**Layanan dukungan psikologis (gratis, 24 jam):**\n\n"
-    "- Hotline **119 ekstensi 8** (SEJIWA / Healing119, Kemenkes)\n"
-    "- Situs konselor daring: **www.healing119.id**\n"
-    "- Halo Kemenkes: **1500-567**\n\n"
-    "Bila kondisi gawat darurat, hubungi **119** atau ke IGD/Puskesmas terdekat."
+    "**Hotline**\n\n"
+    "- **119 ekstensi 8** apabila kamu merasa ingin mengakhiri hidup\n"
+    "- Call via **www.healing119.id** atau chat Whatsapp apabila kamu mengalami gejala kecemasan, putus asa, rendah diri, hampa, dan tidak berharga secara berlebih\n"
 )
 DISCLAIMER = ("⚠️ Hasil berikut merupakan **prediksi**, bukan diagnosis. "
               "Wajib dikonfirmasi kembali oleh psikolog, psikiater, ataupun dokter.")
@@ -178,16 +176,16 @@ def muat_hasil():
 # ---------- Skenario solusi (biner) ----------
 def solusi_biner(terindikasi):
     if terindikasi:
-        rek = ["Disarankan segera berkonsultasi dengan psikolog/psikiater.",
+        rek = ["Disarankan segera konsultasi dengan tenaga kesehatan profesional.",
                "Pantau gejala harian dan ceritakan ke orang yang dipercaya.",
                "Dukung dengan gaya hidup sehat (tidur cukup, nutrisi, aktivitas fisik).",
-               "Gunakan layanan dukungan di bawah ini bila merasa membutuhkan."]
-        return ("Terindikasi - Disarankan Konsultasi", rek, True)
+               "Hubungan hotline di bawah ini apabila merasa membutuhkan."]
+        return ("Terindikasi depresi", rek, True)
     rek = ["Pertahankan pola tidur 7-9 jam yang teratur.",
            "Jaga pola makan sehat (serat, sayur, makanan fermentasi).",
            "Aktivitas fisik rutin dan jaga koneksi sosial.",
            "Tetap konsultasikan ke profesional bila muncul gejala yang mengganggu."]
-    return ("Tidak Terindikasi - Pencegahan & Gaya Hidup", rek, False)
+    return ("Tidak terindikasi depresi", rek, False)
 
 
 # ---------- Helper GenAI ----------
@@ -339,15 +337,14 @@ def halaman_login():
                 st.session_state.peran = "rumah_sakit"
                 st.rerun()
         with tab_pasien:
-            st.write("Masuk cukup dengan akun Google Anda, tanpa perlu mengingat "
-                     "email/kata sandi.")
+            st.write("Masuk dengan akun Google Anda.")
             if auth_dikonfigurasi():
                 st.button("Lanjutkan dengan Google", use_container_width=True,
                           on_click=st.login)
             else:
-                st.caption("Login Google aktif setelah dikonfigurasi di Secrets. "
-                           "Untuk uji coba, gunakan tombol di bawah.")
-                if st.button("Masuk (mode demo)", use_container_width=True):
+                st.caption("Fitur di atas belum dikonfigurasi. "
+                           "Untuk prototipe, klik tombol di bawah.")
+                if st.button("Masuk", use_container_width=True):
                     st.session_state.peran = "pasien"
                     st.rerun()
 
@@ -566,7 +563,7 @@ def dashboard_pasien(data):
     k1, k2 = st.columns([1.3, 1])
     with k1:
         with st.container(border=True):
-            st.caption("Hasil skrining")
+            st.caption("Hasil prediksi")
             st.markdown("<span style='background:%s;color:%s;padding:6px 18px;"
                         "border-radius:20px;font-weight:700;font-size:18px'>%s</span>"
                         % (w["bg"], w["fg"], label), unsafe_allow_html=True)
@@ -574,7 +571,7 @@ def dashboard_pasien(data):
             st.write("Tingkat keyakinan model: **%.0f%%**" % keyakinan)
     with k2:
         with st.container(border=True):
-            st.caption("Probabilitas depresi")
+            st.caption("Probabilitas terindikasi depresi")
             fig = go.Figure(go.Indicator(
                 mode="gauge+number", value=round(p),
                 number={"suffix": "%"},
@@ -586,7 +583,7 @@ def dashboard_pasien(data):
     # --- Rekomendasi ---
     judul, rek, hotline = solusi_biner(label == LABEL_POS)
     with st.container(border=True):
-        st.subheader("Rekomendasi: " + judul)
+        st.subheader("Rekomendasi")
         for r in rek:
             st.markdown("- " + r)
         if hotline:
@@ -612,8 +609,8 @@ def hal_dashboard():
         dashboard_rs(st.session_state.df_hasil)
     else:  # pasien
         with st.container(border=True):
-            st.subheader("Cek Hasil Anda")
-            idq = st.text_input("Masukkan ID Antrian", placeholder="contoh: A-001")
+            st.subheader("Cek Hasil Prediksi Anda")
+            idq = st.text_input("Masukkan ID Antrian", placeholder="Contoh: A-001")
             if st.button("Lihat Hasil"):
                 semua = muat_hasil()
                 if idq.strip() in semua:
@@ -669,10 +666,10 @@ def hal_artikel():
 
 
 def hal_chat():
-    st.header("Chat AI (Pendamping Edukasi)")
-    st.caption("Pendamping edukasi, bukan pengganti tenaga profesional.")
+    st.header("Chat AI")
+    st.caption("Tempat bercerita yang aman dan nyaman untuk membantumu mendengar keluh-kesahmu. Chat AI ini bukan pengganti tenaga profesional.")
     if ada_kunci("GEMINI_API_KEY"):
-        st.caption("🟢 Terhubung ke Gemini (Google).")
+        st.caption("🟢 Kamu tersambung dengan ke Google Gemini di Chat AI ini.")
     elif ada_kunci("ANTHROPIC_API_KEY"):
         st.caption("🟢 Terhubung ke Claude (Anthropic).")
     elif ada_kunci("OPENAI_API_KEY"):
@@ -690,11 +687,9 @@ def hal_chat():
 
 
 def hal_callcenter():
-    st.header("Call Center Depresi")
+    st.header("Hotline")
     with st.container(border=True):
-        st.subheader("Anda tidak sendirian.")
-        st.write("Jika kamu merasa butuh bantuan atau cerita dengan seseorang, "
-                 "klik dan hubungi hotline ini.")
+        st.subheader("Kamu tidak sendiri.")
         st.markdown(TEKS_KRISIS)
 
 
