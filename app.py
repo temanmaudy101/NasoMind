@@ -709,7 +709,7 @@ else:
     st.sidebar.caption("Masuk sebagai Pasien" + (" (%s)" % nama if nama else ""))
     menu = {"Tentang Aplikasi": hal_tentang, "Dashboard": hal_dashboard,
             "Riwayat Konsultasi": hal_riwayat, "Artikel Edukasi": hal_artikel,
-            "Chat AI": hal_chat, "Call Center": hal_callcenter}
+            "Chat AI": hal_chat, "Hotline": hal_callcenter}
 
 pilihan = st.sidebar.radio("Menu", list(menu.keys()))
 st.sidebar.divider()
