@@ -1,15 +1,3 @@
-# =========================================================
-# NasoMind - Aplikasi Skrining Depresi (model biner XGBoost)
-# Peran: APLIKASI | Lomba Esai Statistika Nasional
-# Nama: ______________________   NIM: ______________
-# Program Studi Statistika, Universitas Diponegoro
-# =========================================================
-# - Antarmuka: Streamlit (aplikasi web Python).
-# - Aplikasi TIDAK melatih model. Ia memuat file model (.pkl) + daftar fitur
-#   (.json) dari tim Sains Data, lalu memprediksi data yang diunggah.
-# - Model bersifat BINER: "Terindikasi depresi" vs "Tidak terindikasi depresi",
-#   disertai persentase keyakinan.
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -223,36 +211,37 @@ def solusi_biner(terindikasi):
     return ("Tidak terindikasi depresi", rek, False)
 
 @st.cache_data(show_spinner=False)
-def rekomendasi_ai(terindikasi, prob_persen):
-    """Rekomendasi dari Gemini, disesuaikan tingkat probabilitas terindikasi.
-    Mengembalikan list string, atau None bila AI tidak tersedia/gagal."""
+def interpretasi_metabolit(daftar):
+    """Definisi, kaitan dgn depresi, DAN relevansi biologis tiap metabolit
+    (endogen manusia vs. tumbuhan/makanan/kontaminan). Mengembalikan dict/None."""
     if not ada_kunci("GEMINI_API_KEY"):
         return None
     try:
         from google import genai
         klien = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-        status = "terindikasi depresi" if terindikasi else "tidak terindikasi depresi"
         prompt = (
-            "Anda pendamping edukasi kesehatan mental (BUKAN dokter; tidak mendiagnosis, "
-            "tidak meresepkan obat). Hasil skrining seorang pasien: %s dengan probabilitas "
-            "terindikasi depresi sekitar %d%%. Susun 4-5 rekomendasi langkah suportif yang "
-            "praktis, hangat, aman, dan edukatif dalam Bahasa Indonesia, DISESUAIKAN dengan "
-            "tingkat probabilitas tersebut (semakin tinggi probabilitas, semakin tegas "
-            "menyarankan konsultasi ke tenaga profesional). Hindari klaim medis pasti dan "
-            "jangan menyebut metode menyakiti diri. Balas HANYA JSON berupa array string, "
-            'contoh: ["saran 1","saran 2"]. Tanpa teks lain.'
-            % (status, int(prob_persen)))
+            "Anda ahli metabolomik. Untuk tiap metabolit dalam daftar, jawab dalam "
+            "Bahasa Indonesia, SINGKAT, edukatif, dan JUJUR (jika tidak yakin, katakan "
+            "belum pasti; jangan mengarang). Berikan field: "
+            "'apa' (definisi singkat), "
+            "'hubungan' (kemungkinan kaitan dengan depresi), "
+            "'asal' (pilih satu: 'Endogen' jika diproduksi tubuh/mikrobiota manusia dan "
+            "wajar terdeteksi pada sampel nasal/serum; 'Eksogen' jika berasal dari "
+            "tumbuhan/makanan/obat; 'Kontaminan' jika lazim sebagai kontaminan "
+            "laboratorium/plastik/kosmetik), "
+            "'relevansi' (1 kalimat: apakah metabolit ini relevan secara biologis pada "
+            "manusia/sampel nasal, atau anomali yang perlu diwaspadai). "
+            "Contoh: S-Japonin adalah flavonoid tumbuhan -> asal 'Eksogen'. "
+            "Balas HANYA JSON: "
+            '{"nama_metabolit": {"apa":"...","hubungan":"...","asal":"...","relevansi":"..."}} '
+            "tanpa teks lain. Daftar: " + json.dumps(list(daftar)))
         resp = klien.models.generate_content(model=MODEL_GEMINI, contents=prompt)
         teks = resp.text.strip().replace("```json", "").replace("```", "").strip()
-        if "[" in teks and "]" in teks:
-            teks = teks[teks.index("["): teks.rindex("]") + 1]
-        data = json.loads(teks)
-        if isinstance(data, list) and data:
-            return [str(x) for x in data]
+        if "{" in teks and "}" in teks:
+            teks = teks[teks.index("{"): teks.rindex("}") + 1]
+        return json.loads(teks)
     except Exception:
         return None
-    return None
-
 
 # ---------- Helper GenAI ----------
 def ada_kunci(nama):
