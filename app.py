@@ -222,6 +222,37 @@ def solusi_biner(terindikasi):
            "Tetap konsultasikan ke profesional bila muncul gejala yang mengganggu."]
     return ("Tidak terindikasi depresi", rek, False)
 
+@st.cache_data(show_spinner=False)
+def rekomendasi_ai(terindikasi, prob_persen):
+    """Rekomendasi dari Gemini, disesuaikan tingkat probabilitas terindikasi.
+    Mengembalikan list string, atau None bila AI tidak tersedia/gagal."""
+    if not ada_kunci("GEMINI_API_KEY"):
+        return None
+    try:
+        from google import genai
+        klien = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+        status = "terindikasi depresi" if terindikasi else "tidak terindikasi depresi"
+        prompt = (
+            "Anda pendamping edukasi kesehatan mental (BUKAN dokter; tidak mendiagnosis, "
+            "tidak meresepkan obat). Hasil skrining seorang pasien: %s dengan probabilitas "
+            "terindikasi depresi sekitar %d%%. Susun 4-5 rekomendasi langkah suportif yang "
+            "praktis, hangat, aman, dan edukatif dalam Bahasa Indonesia, DISESUAIKAN dengan "
+            "tingkat probabilitas tersebut (semakin tinggi probabilitas, semakin tegas "
+            "menyarankan konsultasi ke tenaga profesional). Hindari klaim medis pasti dan "
+            "jangan menyebut metode menyakiti diri. Balas HANYA JSON berupa array string, "
+            'contoh: ["saran 1","saran 2"]. Tanpa teks lain.'
+            % (status, int(prob_persen)))
+        resp = klien.models.generate_content(model=MODEL_GEMINI, contents=prompt)
+        teks = resp.text.strip().replace("```json", "").replace("```", "").strip()
+        if "[" in teks and "]" in teks:
+            teks = teks[teks.index("["): teks.rindex("]") + 1]
+        data = json.loads(teks)
+        if isinstance(data, list) and data:
+            return [str(x) for x in data]
+    except Exception:
+        return None
+    return None
+
 
 # ---------- Helper GenAI ----------
 def ada_kunci(nama):
@@ -318,8 +349,10 @@ def interpretasi_metabolit(daftar):
             "Balas HANYA JSON: "
             '{"nama_metabolit": {"apa":"...","hubungan":"...","asal":"...","relevansi":"..."}} '
             "tanpa teks lain. Daftar: " + json.dumps(list(daftar)))
-        resp = klien.models.generate_content(model=MODEL_GEMINI, contents=prompt)
+resp = klien.models.generate_content(model=MODEL_GEMINI, contents=prompt)
         teks = resp.text.strip().replace("```json", "").replace("```", "").strip()
+        if "{" in teks and "}" in teks:
+            teks = teks[teks.index("{"): teks.rindex("}") + 1]
         return json.loads(teks)
     except Exception:
         return None
@@ -588,17 +621,6 @@ def dashboard_rs(df):
     with k4:
         kotak_kpi("Rata-rata probabilitas", "%.0f%%" % rata_prob, "📊")
 
-    # --- Baris KPI 2 (statistik deskriptif probabilitas) ---
-    m1, m2, m3, m4 = st.columns(4)
-    with m1:
-        kotak_kpi("Rata-rata keyakinan", "%.0f%%" % rata_keyak, "🎯")
-    with m2:
-        kotak_kpi("Probabilitas tertinggi", "%.0f%%" % prob.max(), "⬆️")
-    with m3:
-        kotak_kpi("Probabilitas terendah", "%.0f%%" % prob.min(), "⬇️")
-    with m4:
-        kotak_kpi("Probabilitas median", "%.0f%%" % prob.median(), "➗")
-
     # --- Visualisasi (2 kolom) ---
     v1, v2 = st.columns(2)
     with v1:
@@ -622,17 +644,15 @@ def dashboard_rs(df):
             fig.update_xaxes(range=[0, 100], dtick=10)   # mendatar: 0,10,20,...,100
             st.plotly_chart(fig, use_container_width=True)
 
-    # --- Indikator gauge (1 kolom) ---
-    g1 = st.columns(1)
-    with g1:
-        with kartu():
-            st.subheader("Indikator Rata-rata Probabilitas")
-            fig = go.Figure(go.Indicator(
-                mode="gauge+number", value=round(rata_prob),
-                number={"suffix": "%"},
-                gauge={"axis": {"range": [0, 100]}, "bar": {"color": "#FFBFBF"}}))
-            fig.update_layout(height=240, margin=dict(l=10, r=10, t=10, b=10))
-            st.plotly_chart(fig, use_container_width=True)
+# --- Indikator gauge ---
+    with kartu():
+        st.subheader("Indikator Rata-rata Probabilitas")
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number", value=round(rata_prob),
+            number={"suffix": "%"},
+            gauge={"axis": {"range": [0, 100]}, "bar": {"color": "#FFBFBF"}}))
+        fig.update_layout(height=240, margin=dict(l=10, r=10, t=10, b=10))
+        st.plotly_chart(fig, use_container_width=True)
 
     # --- Bar metabolit ---
     fig_m = bar_metabolit()
@@ -681,15 +701,21 @@ def dashboard_pasien(data):
             fig.update_layout(height=220, margin=dict(l=10, r=10, t=10, b=10))
             st.plotly_chart(fig, use_container_width=True)
 
-    # --- Rekomendasi ---
-    judul, rek, hotline = solusi_biner(label == LABEL_POS)
+# --- Rekomendasi (disusun AI sesuai probabilitas, fallback statis) ---
+    terindikasi = (label == LABEL_POS)
+    rek_ai = rekomendasi_ai(terindikasi, round(p))
+    judul, rek, hotline = solusi_biner(terindikasi)
     with kartu():
         st.subheader("Rekomendasi")
+        if rek_ai:
+            st.caption("Disusun AI (Gemini) sesuai probabilitas Anda. Bersifat edukatif, "
+                       "bukan pengganti tenaga profesional.")
+            rek = rek_ai
         for r in rek:
             st.markdown("- " + r)
         if hotline:
             st.error(TEKS_KRISIS)
-
+            
     # --- Metabolit ---
     fig_m = bar_metabolit()
     if fig_m is not None:
