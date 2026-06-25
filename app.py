@@ -1,15 +1,3 @@
-# =========================================================
-# NasoMind - Aplikasi Skrining Depresi (model biner XGBoost)
-# Peran: APLIKASI | Lomba Esai Statistika Nasional
-# Nama: ______________________   NIM: ______________
-# Program Studi Statistika, Universitas Diponegoro
-# =========================================================
-# - Antarmuka: Streamlit (aplikasi web Python).
-# - Aplikasi TIDAK melatih model. Ia memuat file model (.pkl) + daftar fitur
-#   (.json) dari tim Sains Data, lalu memprediksi data yang diunggah.
-# - Model bersifat BINER: "Terindikasi depresi" vs "Tidak terindikasi depresi",
-#   disertai persentase keyakinan.
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -554,8 +542,8 @@ def kartu_metabolit():
                     st.write("**Definisi:** " + str(info.get("apa", "-")))
                     st.write("**Hubungan dengan depresi:** " + str(info.get("hubungan", "-")))
                     if asal:
-                        st.write("**Asal:** " + asal)
-                    st.write("**Relevansi biologis:** " + str(info.get("relevansi", "-")))
+                        st.write("**Sumber:** " + asal)
+                    st.write("**Relevansi dengan nasal manusia:** " + str(info.get("relevansi", "-")))
                     if asal in ("Eksogen", "Kontaminan"):
                         st.warning("Metabolit ini kemungkinan bukan diproduksi tubuh "
                                    "manusia (tumbuhan/makanan/kontaminan). Perlu "
@@ -709,8 +697,7 @@ def dashboard_pasien(data):
     with kartu():
         st.subheader("Rekomendasi")
         if rek_ai:
-            st.caption("Disusun AI (Gemini) sesuai probabilitas Anda. Bersifat edukatif, "
-                       "bukan pengganti tenaga profesional.")
+            st.caption("Rekomendasi tersambung dengan Google Gemini berdasarkan probabilitas indikasi depresi Anda.")
             rek = rek_ai
         for r in rek:
             st.markdown("- " + r)
