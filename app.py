@@ -135,7 +135,7 @@ WARNA_HASIL = {
 TEKS_KRISIS = (
     "**Hotline**\n\n"
     "- **119 ekstensi 8** apabila kamu merasa ingin mengakhiri hidup\n"
-    "- Call via **www.healing119.id** atau chat Whatsapp apabila kamu mengalami gejala kecemasan, putus asa, rendah diri, hampa, dan tidak berharga secara berlebih\n"
+    "- Konseling via **www.healing119.id** atau Whatsapp apabila kamu butuh cerita dengan seseorang\n"
 )
 DISCLAIMER = ("⚠️ Hasil berikut merupakan **prediksi**, bukan diagnosis. "
               "Wajib dikonfirmasi kembali oleh psikolog, psikiater, ataupun dokter.")
@@ -380,12 +380,12 @@ def halaman_login():
                 st.session_state.peran = "rumah_sakit"
                 st.rerun()
         with tab_pasien:
-            st.write("Masuk dengan akun Google Anda.")
+            st.write("Masuk dengan akun Google Anda")
             if auth_dikonfigurasi():
                 st.button("Lanjutkan dengan Google", use_container_width=True,
                           on_click=st.login)
             else:
-                st.caption("Fitur di atas belum dikonfigurasi. "
+                st.caption("Fitur di atas belum terkonfigurasi. "
                            "Untuk prototipe, klik tombol di bawah ini.")
                 if st.button("Masuk", use_container_width=True):
                     st.session_state.peran = "pasien"
@@ -399,54 +399,39 @@ def hal_tentang():
     st.header("Tentang Aplikasi")
 
     with kartu():
-        st.markdown("### 🧠 NasoMind")
-        st.write("**NasoMind** adalah aplikasi deteksi dini depresi secara presisi "
+        st.write("**NasoMind** merupakan aplikasi deteksi dini depresi secara presisi "
                  "berbasis data mikrobioma dan metabolit nasal menggunakan model "
-                 "*machine learning*, untuk mendukung transformasi kesehatan Indonesia.")
+                 "*machine learning* untuk mendukung transformasi kesehatan Indonesia.")
 
     c1, c2 = st.columns(2)
     with c1:
         with kartu():
-            st.markdown("**⚙️ Cara Kerja**")
+            st.markdown("**Cara Kerja**")
             st.markdown("1. Rumah sakit mengunggah data metabolit pasien.\n"
-                        "2. Model machine learning menganalisis & memberi hasil skrining.\n"
-                        "3. Pasien melihat hasil dan rekomendasi melalui ID antrian.")
+                        "2. Model *machine learning* menganalisis dan menampilkan hasil prediksi.\n"
+                        "3. Pasien memasukkan ID antrian untuk melihat dashboard.")
     with c2:
         with kartu():
-            st.markdown("**🔒 Privasi & Keamanan**")
-            st.write("Data kesehatan bersifat sensitif dan hanya diproses untuk "
-                     "keperluan skrining. Hasil tidak menggantikan pemeriksaan klinis.")
+            st.markdown("**🔒 Perlindungan Data Pribadi**")
+            st.write("Data kesehatan bersifat *confidential* dan hanya dianalisis untuk "
+                     "keperluan prediksi. Hasil prediksi tidak menggantikan fungsionalitas pemeriksaan klinis.")
 
     c3, c4 = st.columns(2)
     with c3:
         with kartu():
-            st.markdown("**🏥 Untuk Rumah Sakit**")
-            st.write("Membantu skrining awal lebih cepat: unggah data, lihat ringkasan, "
-                     "distribusi hasil, dan kontribusi metabolit pada model.")
+            st.markdown("**Untuk Rumah Sakit**")
+            st.write("Membantu skrining awal lebih presisi.")
     with c4:
         with kartu():
-            st.markdown("**💚 Untuk Anda**")
-            st.write("Anda tidak sendirian. Hasil ini adalah langkah awal untuk memahami "
-                     "kondisi Anda, bukan sebuah vonis. Selalu ada bantuan dan orang yang peduli.")
-
-    with kartu():
-        st.markdown("**⚠️ Penting**")
-        st.write("NasoMind adalah alat skrining, bukan alat diagnosis. Hasil wajib "
-                 "dikonfirmasi oleh psikolog/psikiater/dokter. Jika Anda merasa membutuhkan "
-                 "bantuan atau ingin bercerita, hubungi 119 ext. 8 (SEJIWA) atau "
-                 "www.healing119.id.")
-
-    with kartu():
-        st.markdown("**👥 Tim Penyusun**")
-        st.markdown("- Bioteknologi : ______________________\n"
-                    "- Sains Data   : ______________________\n"
-                    "- Aplikasi     : ______________________")
+            st.markdown("**Untuk Anda**")
+            st.write("Hasil prediksi ini merupakan langkah awal untuk memahami "
+                     "kondisi Anda, bukan sebuah diagnosis.")
 
 
 def hal_unggah():
     st.header("Unggah Data")
     with kartu():
-        with st.expander("🔽 Unggah file tipe CSV berisi data pasien dengan %d nama kolom berikut (nama kolom yang dapat diproses oleh model machine learning)." % len(FITUR)):
+        with st.expander("🔽 Unggah dokumen tipe CSV berisi data pasien dengan %d nama kolom berikut (nama kolom yang dapat diproses oleh model *machine learning*)" % len(FITUR)):
             st.write(", ".join(FITUR))
         berkas = st.file_uploader("Unggah data")
         if berkas is not None:
@@ -483,7 +468,7 @@ def hal_unggah():
                 st.session_state.df_hasil = df2
                 simpan_hasil(hasil)
 
-                pesan = "Data berhasil diunggah. Sebanyak %d kolom data akan diproses oleh model machine learning, sedangkan" % len(df)
+                pesan = "Data berhasil diunggah. Sebanyak %d kolom data akan diproses oleh model *machine learning*, sedangkan" % len(df)
                 if berlebih:
                     pesan += " %d kolom lainnya diabaikan." % len(berlebih)
                 st.success(pesan + " Klik menu Dashboard untuk melihat hasil prediksi.")
@@ -525,7 +510,7 @@ def kartu_metabolit():
     with kartu():
         st.subheader("Interpretasi Metabolit")
         if interp is None:
-            st.caption("Interpretasi AI aktif setelah GEMINI_API_KEY dipasang di Secrets.")
+            st.caption("Interpretasi ini terhubung dengan AI, tetapi belum terkonfigurasi.")
         for nama, nilai in pasangan:
             info = interp.get(nama) if interp else None
             asal = (info or {}).get("asal", "")
@@ -543,8 +528,7 @@ def kartu_metabolit():
                                    "diverifikasi & dipertimbangkan saat seleksi fitur.")
                 else:
                     st.write("Interpretasi belum tersedia.")
-        st.caption("Penilaian asal/relevansi dihasilkan AI, bersifat edukatif, dan perlu "
-                   "diverifikasi ahli. Anomali sebaiknya ditangani saat pembersihan data.")
+        st.caption("Interpretasi ini bersifat edukatif.")
 
 
 def fitur_insightful(n=6):
@@ -638,8 +622,8 @@ def dashboard_rs(df):
             fig.update_xaxes(range=[0, 100], dtick=10)   # mendatar: 0,10,20,...,100
             st.plotly_chart(fig, use_container_width=True)
 
-    # --- Indikator gauge + ringkasan (2 kolom) ---
-    g1, g2 = st.columns([1, 1.2])
+    # --- Indikator gauge (1 kolom) ---
+    g1 = st.columns(1)
     with g1:
         with kartu():
             st.subheader("Indikator Rata-rata Probabilitas")
@@ -649,17 +633,6 @@ def dashboard_rs(df):
                 gauge={"axis": {"range": [0, 100]}, "bar": {"color": "#FFBFBF"}}))
             fig.update_layout(height=240, margin=dict(l=10, r=10, t=10, b=10))
             st.plotly_chart(fig, use_container_width=True)
-    with g2:
-        with kartu():
-            st.subheader("Ringkasan")
-            st.markdown(
-                "- Total pasien dianalisis: **%d**\n"
-                "- Terindikasi depresi: **%d** (%.0f%%)\n"
-                "- Tidak terindikasi: **%d** (%.0f%%)\n"
-                "- Rentang probabilitas: **%.0f%% – %.0f%%**\n"
-                "- Rata-rata keyakinan model: **%.0f%%**"
-                % (total, n_pos, pct_pos, total - n_pos, 100 - pct_pos,
-                   prob.min(), prob.max(), rata_keyak))
 
     # --- Bar metabolit ---
     fig_m = bar_metabolit()
@@ -688,7 +661,7 @@ def dashboard_pasien(data):
     w = WARNA_HASIL.get(label, {"bg": "#EEEEEE", "fg": "#000000"})
 
     # --- KPI boxes ---
-    k1, k2 = st.columns([1.3, 1])
+    k1, k2 = st.columns(2)
     with k1:
         with kartu():
             st.caption("Hasil prediksi")
@@ -696,7 +669,7 @@ def dashboard_pasien(data):
                         "border-radius:20px;font-weight:700;font-size:18px'>%s</span>"
                         % (w["bg"], w["fg"], label), unsafe_allow_html=True)
             st.write("")
-            st.write("Tingkat keyakinan model: **%.0f%%**" % keyakinan)
+            st.write("Tingkat keyakinan: **%.0f%%**" % keyakinan)
     with k2:
         with kartu():
             st.caption("Probabilitas terindikasi depresi")
@@ -785,7 +758,7 @@ def hal_artikel():
     st.header("Artikel Edukasi")
 
     # ---- Artikel internal NasoMind (dari artikel.md) ----
-    st.subheader("Artikel NasoMind")
+    st.subheader("Artikel oleh NasoMind")
     daftar = muat_artikel()
     if not daftar:
         st.info("Belum ada artikel internal. Tambahkan tulisan di file artikel.md.")
@@ -813,7 +786,7 @@ def hal_artikel():
          "sumber": "Medium", "url": "https://medium.com/tag/mental-health",
          "ringkas": "Kumpulan tulisan pengalaman dan edukasi seputar kesehatan mental."},
     ]
-    st.subheader("Artikel & Sumber Eksternal")
+    st.subheader("Artikel Lainnya")
     kol2 = st.columns(2)
     for i, a in enumerate(eksternal):
         with kol2[i % 2]:
@@ -846,7 +819,8 @@ def hal_chat():
 
 
 def hal_callcenter():
-    st.header("Kamu tidak sendiri.")
+    st.header(" Anda tidak sendirian.")
+    st.caption("Ada orang yang peduli dan ingin membantu Anda. Berikut adalah beberapa saluran bantuan yang dapat Anda hubungi. Mereka siap mendengarkan dan mendukung Anda kapan pun Anda membutuhkan. Kami harap ini membantu.")
     with kartu():
         st.markdown(TEKS_KRISIS)
 
