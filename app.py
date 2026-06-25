@@ -84,7 +84,9 @@ st.markdown(
          hijau-muda lembut & membulat di seluruh aplikasi */
       div[data-testid="stVerticalBlockBorderWrapper"],
       div[class*="stVerticalBlockBorderWrapper"],
-      div[data-testid="stExpander"] details {
+      div[data-testid="stExpander"] details,
+      div[data-testid="stColumn"] div[data-testid="stVerticalBlockBorderWrapper"],
+      div[data-testid="column"] div[data-testid="stVerticalBlockBorderWrapper"] {
           background-color: #F3FDE8 !important;
           border: 1px solid #CFE8C2 !important;
           border-radius: 16px !important;
